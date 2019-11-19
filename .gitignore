@@ -3,3 +3,4 @@ __pycache__/
 
 # Spotipy
 spotipy-master/
+docs/config.py
