@@ -2,4 +2,4 @@
 __pycache__/
 
 # Spotipy
-docs/config.py
+docs/config.ini
