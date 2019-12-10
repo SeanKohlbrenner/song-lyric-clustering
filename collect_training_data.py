@@ -6,16 +6,21 @@ import requests
 import string
 
 from bs4 import BeautifulSoup
-from pprint import pprint
+from time import sleep
 from urllib.request import urlopen
 
+# Start and end index of the in_file to gather data for
 DATA_RETR_START_INDEX = 0
-DATA_RETR_END_INDEX = 0
+DATA_RETR_END_INDEX = 102
 
-TIME_LOW_BOUND = 5
-TIME_HIGH_BOUND = 15
+# Range of time to wait between gathering each song's lyrics in seconds
+TIME_LOW_BOUND = 2
+TIME_HIGH_BOUND = 5
 
-NUM_SONGS_PER_ARTIST = 0
+# Number of songsto be collected for each artist
+NUM_SONGS_PER_ARTIST = 50
+
+
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0'
 HEADERS = {'User-Agent': USER_AGENT}
@@ -85,12 +90,24 @@ def get_songs(artist_url):
   
   # Get lyrics for NUM_SONGS_PER_ARTIST random songs in list
   lyrics_for_artist = []
-  for song_url in random.sample(song_list, NUM_SONGS_PER_ARTIST):
-    lyrics_for_artist.append(get_lyrics(song_url))
-    # SET TIMER HERE
+  # If the artist has the same or fewer number of songs - do all of them
+  if (len(song_list) <= NUM_SONGS_PER_ARTIST):
+    for song_url in song_list:
+      lyrics_for_artist.append(get_lyrics(song_url))
+      # Set timer to not overload the server
+      sleep_time = random.randint(TIME_LOW_BOUND, TIME_HIGH_BOUND)
+      print("Sleep: " + str(sleep_time))
+      sleep(sleep_time)
+  else:
+    for song_url in random.sample(song_list, NUM_SONGS_PER_ARTIST):
+      lyrics_for_artist.append(get_lyrics(song_url))
+      # Set timer to not overload the server
+      sleep_time = random.randint(TIME_LOW_BOUND, TIME_HIGH_BOUND)
+      print("Sleep: " + str(sleep_time))
+      sleep(sleep_time)
     
   # Return full list
-
+  return(lyrics_for_artist)
 
 # =============================================================================
 # get_lyrics: Retrieve lyrics from a song page
@@ -106,6 +123,8 @@ def get_lyrics(song_url):
   song_title = str(soup.find("div", {"class": "ringtone"}).next_sibling.next_sibling).replace("\"", "")
   cleanr = re.compile('<.*?>')
   song_title = re.sub(cleanr, '', song_title)
+  
+  print("Gathering lyrics for: " + song_title)
   
   # If there is a feature the page is set up differently
   if (str(soup.find("div", {"class": "col-xs-12 col-lg-8 text-center"}).contents[12]) == "<br/>"):
@@ -435,18 +454,24 @@ def main():
   in_file_path = current_directory + "/data/artists.csv"
   out_file_path = current_directory + "/data/artists_and_lyrics.csv"
   
+  artists = []
+  
   # Loop through artist list to get lyrics for an artist
   with open(in_file_path, "r") as in_f:
     # Append the artist's lyrics to .csv file
     artists = list(csv.reader(in_f))
     in_f.close()
-    with open(out_file_path, "a+") as out_f:
-      out_f.close()
+  
+  # Use the web scraper to gether artist data
+  with open(out_file_path, "a+") as out_f:
+    # Run web scraper on artists
+    for artist in artists[DATA_RETR_START_INDEX:DATA_RETR_END_INDEX]:
+      lyrics_for_artist = get_data(artist)
       
-      get_songs("https://www.azlyrics.com/a/avettbrothers.html")  
-  
-  
-  # Create feature vector
+      # Append each song to data file
+      for song in lyrics_for_artist:
+        out_f.write(song[0] + "," + song[1] + "\n")
+    out_f.close()
   
 if __name__ == '__main__':
   main()
