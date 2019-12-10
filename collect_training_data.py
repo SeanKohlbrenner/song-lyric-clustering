@@ -11,11 +11,11 @@ from urllib.request import urlopen
 
 # Start and end index of the in_file to gather data for
 DATA_RETR_START_INDEX = 0
-DATA_RETR_END_INDEX = 102
+DATA_RETR_END_INDEX = 10
 
 # Range of time to wait between gathering each song's lyrics in seconds
-TIME_LOW_BOUND = 2
-TIME_HIGH_BOUND = 5
+TIME_LOW_BOUND = 10
+TIME_HIGH_BOUND = 20
 
 # Number of songsto be collected for each artist
 NUM_SONGS_PER_ARTIST = 50
@@ -23,7 +23,7 @@ NUM_SONGS_PER_ARTIST = 50
 
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0'
-HEADERS = {'User-Agent': USER_AGENT}
+HEADERS = {'User-Agent': USER_AGENT, "Contact": "https://github.com/SeanKohlbrenner/song-lyric-clustering/blob/master/collect_training_data.py"}
 BASE_URL = "https://www.azlyrics.com"
 
 
@@ -90,9 +90,13 @@ def get_songs(artist_url):
   
   # Get lyrics for NUM_SONGS_PER_ARTIST random songs in list
   lyrics_for_artist = []
+  song_num = 0
+  
   # If the artist has the same or fewer number of songs - do all of them
   if (len(song_list) <= NUM_SONGS_PER_ARTIST):
     for song_url in song_list:
+      print("Song: " + str(song_num))
+      song_num += 1
       lyrics_for_artist.append(get_lyrics(song_url))
       # Set timer to not overload the server
       sleep_time = random.randint(TIME_LOW_BOUND, TIME_HIGH_BOUND)
@@ -100,6 +104,8 @@ def get_songs(artist_url):
       sleep(sleep_time)
   else:
     for song_url in random.sample(song_list, NUM_SONGS_PER_ARTIST):
+      print("Song: " + str(song_num))
+      song_num += 1
       lyrics_for_artist.append(get_lyrics(song_url))
       # Set timer to not overload the server
       sleep_time = random.randint(TIME_LOW_BOUND, TIME_HIGH_BOUND)
@@ -118,6 +124,8 @@ def get_songs(artist_url):
 def get_lyrics(song_url):
   html = urlopen(song_url)
   soup = BeautifulSoup(html, "html.parser")
+  
+  print(song_url)
   
   # Find the song
   song_title = str(soup.find("div", {"class": "ringtone"}).next_sibling.next_sibling).replace("\"", "")
@@ -466,11 +474,12 @@ def main():
   with open(out_file_path, "a+") as out_f:
     # Run web scraper on artists
     for artist in artists[DATA_RETR_START_INDEX:DATA_RETR_END_INDEX]:
+      print("Gathering Data for: " + str(artist))
       lyrics_for_artist = get_data(artist)
       
       # Append each song to data file
       for song in lyrics_for_artist:
-        out_f.write(song[0] + "," + song[1] + "\n")
+        out_f.write(str(artist) + song[0] + "," + song[1] + "\n")
     out_f.close()
   
 if __name__ == '__main__':
