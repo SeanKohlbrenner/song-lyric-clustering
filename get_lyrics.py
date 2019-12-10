@@ -11,7 +11,7 @@ from urllib.request import urlopen
 
 # Start and end index of the in_file to gather data for
 DATA_RETR_START_INDEX = 0
-DATA_RETR_END_INDEX = 102
+DATA_RETR_END_INDEX = 100
 
 # Range of time to wait between gathering each song's lyrics in seconds
 TIME_LOW_BOUND = 10
