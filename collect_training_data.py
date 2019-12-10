@@ -47,14 +47,19 @@ def get_artist_url(artist):
   html = response.content
   
   soup = BeautifulSoup(html, "html.parser")
+  artist_list = soup.find("td", {"class": "text-left visitedlyr"})
   
   # Return first result
+  return(artist_list.find("a")["href"])
+  
 
 # =============================================================================
 # get_songs: retrieve NUM_SONGS_PER_ARTIST lyrics from an artist's page
 # Input:
 #     - artist_url: the artist's page url
-# Output: A list of song lyrics (each index is a song)
+# Output: A 3D list:
+#     [["title", "lyrics"],
+#      ["title", "lyrics"]
 # =============================================================================
 def get_songs(artist_url):
   # Get NUM_SONGS_PER_ARTIST random songs and append lyrics to a list
@@ -62,6 +67,7 @@ def get_songs(artist_url):
   html = response.content
   
   soup = BeautifulSoup(html, "html.parser")
+  
   # Return full list
 
 
@@ -69,14 +75,16 @@ def get_songs(artist_url):
 # get_lyrics: Retrieve lyrics from a song page
 # Input:
 #     - song_url: page containing song lyrics
-# Output: A string containing cleaned lyrics
+# Output: list: ["title", "lyrics"]
 # =============================================================================
 def get_lyrics(song_url):
   html = urlopen(song_url)
   soup = BeautifulSoup(html, "html.parser")
   
   # Find the song
-  song_title = soup.find("div", {"class": "ringtone"}).next_sibling.next_sibling
+  song_title = str(soup.find("div", {"class": "ringtone"}).next_sibling.next_sibling).replace("\"", "")
+  cleanr = re.compile('<.*?>')
+  song_title = re.sub(cleanr, '', song_title)
   
   # If there is a feature the page is set up differently
   if (str(soup.find("div", {"class": "col-xs-12 col-lg-8 text-center"}).contents[12]) == "<br/>"):
@@ -90,7 +98,9 @@ def get_lyrics(song_url):
     lyrics = lyrics + str(item)
   
   lyrics = preprocess_text(lyrics)
-  return(lyrics)
+  
+  title_lyric_pair = [song_title, lyrics]
+  return(title_lyric_pair)
 
 
 # =============================================================================
@@ -100,7 +110,7 @@ def get_lyrics(song_url):
 # Output: A string containing cleaned lyrics
 # =============================================================================
 def preprocess_text(in_str):
-  print(in_str)
+  #print(in_str)
   # Remove capital letters
   in_str = in_str.lower()
   
@@ -253,7 +263,130 @@ def preprocess_text(in_str):
   #in_str = in_str.replace("ed ", " ")
   
   # Remove stopwords
-  stopwords = ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "can", "will", "just", "should", "now"]
+  stopwords = ["i", 
+               "me", 
+               "my", 
+               "myself", 
+               "we", 
+               "our", 
+               "ours", 
+               "ourselves", 
+               "you", 
+               "your", 
+               "yours", 
+               "yourself", 
+               "yourselves", 
+               "he", 
+               "him", 
+               "his", 
+               "himself", 
+               "she", 
+               "her", 
+               "hers", 
+               "herself", 
+               "it", 
+               "its", 
+               "itself", 
+               "they", 
+               "them", 
+               "their", 
+               "theirs", 
+               "themselves", 
+               "what", 
+               "which", 
+               "who", 
+               "whom", 
+               "this", 
+               "that", 
+               "these", 
+               "those", 
+               "am", 
+               "is", 
+               "are", 
+               "was", 
+               "were", 
+               "be", 
+               "been", 
+               "being", 
+               "have", 
+               "has", 
+               "had", 
+               "having", 
+               "do", 
+               "does", 
+               "did", 
+               "doing", 
+               "a", 
+               "an", 
+               "the", 
+               "and", 
+               "but", 
+               "if", 
+               "or", 
+               "because", 
+               "as", 
+               "until", 
+               "while", 
+               "of", 
+               "at", 
+               "by", 
+               "for", 
+               "with", 
+               "about", 
+               "against", 
+               "between", 
+               "into", 
+               "through", 
+               "during", 
+               "before", 
+               "after", 
+               "above", 
+               "below", 
+               "to", 
+               "from", 
+               "up", 
+               "down", 
+               "in", 
+               "out", 
+               "on", 
+               "off", 
+               "over", 
+               "under", 
+               "again", 
+               "further", 
+               "then", 
+               "once", 
+               "here", 
+               "there", 
+               "when", 
+               "where", 
+               "why", 
+               "how", 
+               "all", 
+               "any", 
+               "both", 
+               "each", 
+               "few", 
+               "more", 
+               "most", 
+               "other", 
+               "some", 
+               "such", 
+               "no", 
+               "nor", 
+               "not", 
+               "only", 
+               "own", 
+               "same", 
+               "so", 
+               "than", 
+               "too", 
+               "can", 
+               "will", 
+               "just", 
+               "should", 
+               "now"]
+  
   in_str = in_str.split(" ")
   for word in reversed(stopwords):
     for i in in_str:
@@ -282,7 +415,10 @@ def main():
     in_f.close()
     with open(out_file_path, "a+") as out_f:
       out_f.close()
-    pprint(artists)
+      
+    print(get_lyrics("https://www.azlyrics.com/lyrics/remodrive/strawberita.html"))
+  
+  
   
   # Create feature vector
   
