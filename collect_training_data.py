@@ -1,5 +1,6 @@
 import csv
 import os
+import random
 import re
 import requests
 import string
@@ -8,10 +9,17 @@ from bs4 import BeautifulSoup
 from pprint import pprint
 from urllib.request import urlopen
 
-NUM_SONGS_PER_ARTIST = 20
+DATA_RETR_START_INDEX = 0
+DATA_RETR_END_INDEX = 0
+
+TIME_LOW_BOUND = 5
+TIME_HIGH_BOUND = 15
+
+NUM_SONGS_PER_ARTIST = 0
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0'
 HEADERS = {'User-Agent': USER_AGENT}
+BASE_URL = "https://www.azlyrics.com"
 
 
 # Use file 
@@ -68,6 +76,19 @@ def get_songs(artist_url):
   
   soup = BeautifulSoup(html, "html.parser")
   
+  # Collect all songs
+  songs = soup.find("div", {"id": "listAlbum"}).findAll("a")
+  
+  song_list = []
+  for song in songs:
+    song_list.append(song["href"].replace("..", BASE_URL))
+  
+  # Get lyrics for NUM_SONGS_PER_ARTIST random songs in list
+  lyrics_for_artist = []
+  for song_url in random.sample(song_list, NUM_SONGS_PER_ARTIST):
+    lyrics_for_artist.append(get_lyrics(song_url))
+    # SET TIMER HERE
+    
   # Return full list
 
 
@@ -104,7 +125,7 @@ def get_lyrics(song_url):
 
 
 # =============================================================================
-# preprocess_text
+# preprocess_text: clean the lyrics by removing unnecessary elements
 # Input:
 #     - in_str: dirty text
 # Output: A string containing cleaned lyrics
@@ -398,6 +419,12 @@ def preprocess_text(in_str):
   
   return(in_str)
 
+# =============================================================================
+# extract_features: Convert the corpus into a feature vector ready for analysis
+# Input:
+#     - 
+# Output: 
+# =============================================================================
 # Use TF-iDF to determine word importance
 def extract_features():
   pass
@@ -416,8 +443,7 @@ def main():
     with open(out_file_path, "a+") as out_f:
       out_f.close()
       
-    print(get_lyrics("https://www.azlyrics.com/lyrics/remodrive/strawberita.html"))
-  
+      get_songs("https://www.azlyrics.com/a/avettbrothers.html")  
   
   
   # Create feature vector
