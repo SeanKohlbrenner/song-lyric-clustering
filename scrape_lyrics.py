@@ -9,16 +9,19 @@ from bs4 import BeautifulSoup
 from time import sleep
 from urllib.request import urlopen
 
+DATA_FILE = "/data/artists.csv"
+OUTPUT_FILE = "/data/artists_and_lyrics.csv"
+
 # Start and end index of the in_file to gather data for
-DATA_RETR_START_INDEX = 0
-DATA_RETR_END_INDEX = 100
+DATA_RETR_START_INDEX = 11
+DATA_RETR_END_INDEX = 30
 
 # Range of time to wait between gathering each song's lyrics in seconds
 TIME_LOW_BOUND = 10
 TIME_HIGH_BOUND = 20
 
 # Number of songsto be collected for each artist
-NUM_SONGS_PER_ARTIST = 50
+NUM_SONGS_PER_ARTIST = 20
 
 
 
@@ -459,8 +462,8 @@ def extract_features():
 def main():
   # Get path to in/out files
   current_directory = os.getcwd()
-  in_file_path = current_directory + "/data/artists.csv"
-  out_file_path = current_directory + "/data/artists_and_lyrics.csv"
+  in_file_path = current_directory + DATA_FILE
+  out_file_path = current_directory + OUTPUT_FILE
   
   artists = []
   
@@ -479,7 +482,9 @@ def main():
       
       # Append each song to data file
       for song in lyrics_for_artist:
-        out_f.write(str(artist) + "," + song[0] + "," + song[1] + "\n")
+        output = str(artist) + "," + song[0] + "," + song[1] + "\n"
+        output = output.encode(encoding='UTF-8',errors='strict')  # Convert text to utf-8
+        out_f.write(output)
     out_f.close()
   
 if __name__ == '__main__':
