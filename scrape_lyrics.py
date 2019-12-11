@@ -13,8 +13,8 @@ DATA_FILE = "/data/artists.csv"
 OUTPUT_FILE = "/data/artists_and_lyrics.csv"
 
 # Start and end index of the in_file to gather data for
-DATA_RETR_START_INDEX = 11
-DATA_RETR_END_INDEX = 30
+DATA_RETR_START_INDEX = 0
+DATA_RETR_END_INDEX = 100
 
 # Range of time to wait between gathering each song's lyrics in seconds
 TIME_LOW_BOUND = 10
@@ -478,13 +478,16 @@ def main():
     # Run web scraper on artists
     for artist in artists[DATA_RETR_START_INDEX:DATA_RETR_END_INDEX]:
       print("Gathering Data for: " + str(artist))
-      lyrics_for_artist = get_data(artist)
+      try:
+        lyrics_for_artist = get_data(artist)
+      except Exception as e:
+        print(repr(e))
       
       # Append each song to data file
       for song in lyrics_for_artist:
         output = str(artist) + "," + song[0] + "," + song[1] + "\n"
-        output = output.encode(encoding='UTF-8',errors='strict')  # Convert text to utf-8
-        out_f.write(str(output))
+        #output = output.encode(encoding='UTF-8',errors='strict')  # Convert text to utf-8
+        out_f.write(output)
     out_f.close()
   
 if __name__ == '__main__':
