@@ -484,7 +484,7 @@ def main():
       for song in lyrics_for_artist:
         output = str(artist) + "," + song[0] + "," + song[1] + "\n"
         output = output.encode(encoding='UTF-8',errors='strict')  # Convert text to utf-8
-        out_f.write(output)
+        out_f.write(str(output))
     out_f.close()
   
 if __name__ == '__main__':
