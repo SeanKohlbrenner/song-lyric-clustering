@@ -2,4 +2,4 @@
 
 
 ## References
-[1](http://brandonrose.org/clustering#Hierarchical-document-clustering)
+[1](https://towardsdatascience.com/understanding-feature-engineering-part-3-traditional-methods-for-text-data-f6f7d70acd41)
